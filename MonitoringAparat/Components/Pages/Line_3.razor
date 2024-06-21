@@ -1,0 +1,124 @@
+﻿@page "/Line_3"
+@attribute [StreamRendering]
+@using Microsoft.EntityFrameworkCore
+@using MonitoringAparat
+@using MonitoringAparat.Entitties
+@rendermode InteractiveServer
+<PageTitle>TimeList</PageTitle>
+@inject IDbContextFactory<MonitContext> ContextFactory
+<PageTitle>TimeList</PageTitle>
+@inject NavigationManager Navigation
+<h1>Таймлист. Регламент и состояние комплектующих</h1>
+
+<p>Конвейерная линия № 3</p>
+
+
+<p>Текущая дата и время: @CurrentDateTime</p>
+@code {
+    private DateTime CurrentDateTime = DateTime.Now;
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Название запчасти</th>
+            <th>Регламент</th>
+            <th>Замена</th>
+            <th>Отработано (в часах)</th>
+            <th>Состояние</th>
+
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var forecast in parts)
+        {
+            <tr style="background-color: @(forecast.PartStatus=="Плохо" ? "red": forecast.PartStatus=="Хорошо" ? "orange" : "green")">
+                <td><input class="form-control" @bind="@forecast.NamePart" /></td>
+                <td><input class="form-control" @bind="@forecast.Limit" /></td>
+                <td><input class="form-control" @bind="@forecast.Change" /></td>
+                <td><input class="form-control" @bind="@forecast.Worked" /></td>
+                <td><input class="form-control" @bind="@forecast.PartStatus" /></td
+                <td><button style="margin-top:10px" class="btn btn-primary" @onclick="()=>update(forecast)">Сохранить</button></td>
+                <td><button style="margin-top:10px" class="btn btn-primary" @onclick="()=>delete(forecast)">Удалить</button></td>
+
+               
+               
+            </tr>
+            
+            
+        }
+    </tbody>
+</table>
+
+<a class="btn btn-primary" href="Counter"> Добавить</a>
+
+<style>
+    body{
+        font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    }
+</style>
+
+@code {
+    List<Line> lines;
+    IEnumerable<Part> parts;
+   
+    public string NamePart { get; set; } = null!;
+    public string PartStatus { get; set; } = null!;
+    public int Limit { get; set; }
+    public DateOnly Change { get; set; }
+    public int Worked { get; set; }
+    public Part apparat { get; set; }
+    List<Apparat>? apparature;
+
+ 
+
+
+    public void update(Part part)
+    {
+        using var context = ContextFactory.CreateDbContext();
+        //apparat = new Part { NamePart = NamePart, Limit = Limit, Change = Change, Worked = Worked, PartStatus = PartStatus, };
+        context.Parts.Update(part);
+        context.SaveChanges();
+    }
+    public void delete(Part part)
+    {
+        using var context = ContextFactory.CreateDbContext();
+
+        context.Parts.Remove(part);
+        context.SaveChanges();
+        Navigation.NavigateTo("Line_3", true);
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        await using var context = ContextFactory.CreateDbContext();
+        lines = await context.Lines.Include(x => x.Parts).ToListAsync();
+        parts = lines[2].Parts;
+        zam();
+    }
+  
+    public void zam()
+    {
+        foreach (var part in parts)
+        {
+            if (part.Worked * 100 / part.Limit <= 33)
+            {
+                part.PartStatus = "Отлично";
+            }
+            else
+            {
+                if (part.Worked * 100 / part.Limit <= 66)
+                {
+                    part.PartStatus = "Хорошо";
+                }
+                else
+                {
+                    part.PartStatus = "Плохо";
+                }
+            }
+
+
+
+        }
+    }
+
+}

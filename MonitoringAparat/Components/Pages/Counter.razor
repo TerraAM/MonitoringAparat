@@ -1,0 +1,191 @@
+﻿@page "/Counter"
+@attribute [StreamRendering]
+@rendermode InteractiveServer
+@using Microsoft.EntityFrameworkCore
+@using MonitoringAparat
+@using MonitoringAparat.Entitties
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Web.Virtualization
+@using Microsoft.JSInterop
+@inject NavigationManager Navigation
+
+<PageTitle>TimeList</PageTitle>
+@inject IDbContextFactory<MonitContext> ContextFactory
+
+<style> 
+    input{
+        margin: 5px 0 20px;
+    }
+
+    .jumbotron p{
+        margin-top: 15px;
+        margin-bottom: 3px;
+    }
+</style>
+
+<style>
+    body {
+        font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    }
+</style>
+
+<h1>Добавление новой запчасти</h1>
+
+<div class="jumbotron" style="background-color: ivory">
+
+   
+    <input class="form-control" placeholder="Название детали" @bind="NamePart" />
+    
+    <input class="form-control" placeholder="Состояние" @bind="PartStatus" />
+    
+    <p>Введите регламент</p>
+    <input class="form-control" placeholder="Лимит" @bind="Limit" />
+    
+    <p>Дата замены</p>
+    <input class="form-control" placeholder="Дата замены" @bind="Change" />
+    
+    <p>Отработано часов</p>
+    <input class="form-control" placeholder="Отработано" @bind="Worked" />
+     
+
+  @*   <p>Принадлежность к линии</p>
+    <input class="form-control" placeholder="Enter Line" @bind="LineId" />
+    <p></p> *@
+   @*  <p>Принадлежность к аппарату</p>
+    <input class="form-control" placeholder="Enter Apparat" @bind="ApparatId" />
+    
+    <br /> *@
+</div>
+
+<div>
+    <div>Линия</div>
+    <select @onchange="OnSelectChange">
+
+        @foreach (var linara in lines)
+        {
+            <option value="@linara.LineId">@linara.LineId</option>
+        }
+
+    </select>
+
+    <select @bind="@thisApparat">
+        @foreach (var appara in apparature)
+        {
+            <option value="@appara.Name">@appara.Name</option>
+        }
+
+    </select>
+</div>
+
+<button style="margin-top:10px" class="btn btn-primary" @onclick="Edit">Сохранить</button>
+
+
+@if (errorMassage != null)
+{
+    <div class="alert alert-danger mt-3" role="alert">@errorMassage</div>
+}
+
+
+@code {
+
+    string errorMassage;
+
+    public string NamePart { get; set; } = null!;
+    public string PartStatus { get; set; } = null!;
+    public int Limit { get; set; }
+    public DateOnly Change { get; set; }
+    public int Worked { get; set; }
+    public Part apparat { get; set; }
+    public Part lineId { get; set; }
+
+    string thisline;
+    string thisApparat;
+    Apparat perem;
+    Line linef;
+    List<Line> lines;
+    List<Apparat>? apparature;
+
+
+    int but;
+
+    //List<Material> materials;
+
+
+    public bool CheckingData()
+    {
+        if (Change != DateOnly.FromDateTime(DateTime.Now))
+        {
+            errorMassage = "Некорректная дата";
+            return true;
+        }
+
+        if (Limit <= 0)
+        {
+            errorMassage = "Лимит должны быть больше 0";
+            return true;
+        }
+
+        if (string.IsNullOrEmpty(NamePart) || string.IsNullOrEmpty(PartStatus))
+        {
+            errorMassage = "Название детали и Состояние не должны быть пустыми";
+            return true;
+        }
+
+        return false;
+    }
+
+    void OnSelectChange(ChangeEventArgs e)
+    {
+        var selectedLineId = e.Value.ToString();
+        var selectedLine = lines.FirstOrDefault(l => l.LineId == Convert.ToInt32(selectedLineId));
+
+        thisline = selectedLineId;
+
+        if (selectedLine != null)
+        {
+            apparature = selectedLine.Apparat;
+        }
+
+        StateHasChanged();
+    }
+
+
+    private void Edit()
+    {
+        if (CheckingData())
+            return;
+
+        using var context = ContextFactory.CreateDbContext();
+        var line = context.Lines.Include(e => e.Parts);
+        apparat = new Part { NamePart = NamePart, Change = Change, PartStatus = PartStatus, Limit = Limit, Worked = Worked };
+        context.Parts.Add(apparat);
+        perem = apparature.Find(c => c.Name == thisApparat);
+        perem.Parts.Add(apparat);
+        linef = lines.Find(c => c.LineId.ToString() == thisline);
+        linef.Parts.Add(apparat);
+
+        context.Lines.Update(linef);
+        context.SaveChanges();
+        Navigation.NavigateTo("/Counter", true);
+
+
+
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await using var context = ContextFactory.CreateDbContext();
+        // lines = await context.Lines.Include(x => x.Material).ToListAsync();
+        // materials = await context.Material.ToListAsync();
+        apparature = await context.Apparature.Include(x=>x.Parts).ToListAsync();
+        //   thisApparat = context.Apparature.First().Name;
+        lines = await context.Lines.Include(x => x.Parts).ToListAsync();
+        //await complition();
+        //await Rabotatb();
+        Change = DateOnly.FromDateTime(DateTime.Now);
+    }
+}
+

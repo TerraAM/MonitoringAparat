@@ -1,0 +1,340 @@
+﻿@page "/"
+@attribute [StreamRendering]
+@rendermode InteractiveServer
+@using Microsoft.EntityFrameworkCore
+@using MonitoringAparat
+@using MonitoringAparat.Entitties
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Web.Virtualization
+@using Microsoft.JSInterop
+@using System.Threading
+
+
+@inject IDbContextFactory<MonitContext> ContextFactory
+<PageTitle>Home</PageTitle>
+
+<h1>Текущие данные</h1>
+<p>@CurrentDateTime</p>
+
+
+<style>
+    body{
+        font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    }
+</style>
+
+
+@code {
+    DateTime CurrentDateTime = DateTime.Now;
+}
+
+@* <div>За @daymats.First().day день было сделано @daymats.Find(x => x.DayMatId == 2).countmaterial.First().count бутылок @daymats.Find(x => x.DayMatId == 2).countmaterial.First().material.Name</div> *@
+
+    <table class="table">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Линия 1</th>
+                    <th>Линия 2</th>
+                    <th>Линия 3</th>
+               
+                </tr>
+            </thead>
+            <tbody>
+         
+                <tr>
+                    <td>Продукция</td>
+                    <td>
+                        <select @bind="@thismat">
+
+                            @foreach (var dayma in materials)
+                            {
+                                <option value="@dayma.Name">@dayma.Name</option>
+                            }
+
+                        </select>
+                    </td>
+
+                    <td>
+                        <select @bind="@thismat2">
+
+                            @foreach (var dayma in materials)
+                            {
+                                <option value="@dayma.Name">@dayma.Name</option>
+                            }
+
+                        </select>
+                    </td>
+
+                    <td>
+                        <select @bind="@thismat3">
+
+                            @foreach (var dayma in materials)
+                            {
+                                <option value="@dayma.Name">@dayma.Name</option>
+                            }
+
+                        </select>
+                    </td>
+              
+                </tr>
+            
+            </tbody>
+            <tbody>
+
+                <tr>
+                    
+                    <td>Объем (л)</td>
+                    <td>@materials.Where(x=>x.Name == thismat).First().volume</td>
+                    <td>@materials.Where(x => x.Name == thismat2).First().volume</td>
+                    <td>@materials.Where(x => x.Name == thismat3).First().volume</td>
+                </tr>
+
+            </tbody>
+            <tbody>
+
+                <tr>
+
+                    <td>Сусло(%)</td>
+                    <td>@materials.Where(x => x.Name == thismat).First().syslo</td>
+                    <td>@materials.Where(x => x.Name == thismat2).First().syslo</td>
+                    <td>@materials.Where(x => x.Name == thismat3).First().syslo</td>
+                </tr>
+
+                    </tbody>
+            <tbody>
+
+                <tr>
+
+                    <td>крепость (%)</td>
+                    <td>@materials.Where(x => x.Name == thismat).First().strength</td>
+                    <td>@materials.Where(x => x.Name == thismat2).First().strength</td>
+                    <td>@materials.Where(x => x.Name == thismat3).First().strength</td>
+                </tr>
+
+            </tbody>
+            <tbody>
+
+                <tr>
+
+                    <td>Скорость (Бут/час)</td>
+                    <td>@lines[0].speed</td>
+                    <td>@lines[1].speed</td>
+                    <td>@lines[2].speed</td>
+                </tr>
+
+            </tbody>
+            <tbody>
+
+                <tr>
+
+                    <td>Плотность (на 1000л)</td>
+                    <td>@lines[0].Material.density</td>
+                    <td>@lines[1].Material.density</td>
+                    <td>@lines[2].Material.density</td>
+                </tr>
+
+            </tbody>
+            <tbody>
+
+                <tr>
+
+                    <td>Температура (в С0)</td>
+                    <td>@lines[0].Material.temp</td>
+                    <td>@lines[1].Material.temp</td>
+                    <td>@lines[2].Material.temp</td>
+                </tr>
+
+                <tr style ="border: 3px solid">
+
+                    <td>Сделано бутылок</td>
+                    <td > @daymats.First().countmaterial[0].count </td>
+                    <td>@daymats.First().countmaterial[1].count</td>
+                    <td>@daymats.First().countmaterial[2].count</td>
+                </tr>
+
+                <tr>
+
+                    <td></td>
+                    <td>
+                        <button class="btn btn-primary" @onclick="() => Rabotatb_0()">Запуск</button>
+                        <button class="btn btn-danger" @onclick="Astonavis_ta_0">Отмена</button>
+                    </td>
+                   
+                    <td>
+                        <button class="btn btn-primary" @onclick="() => Rabotatb_1()">Запуск</button>
+                        <button class="btn btn-danger" @onclick="Astonavis_ta_1">Отмена</button>
+                    </td>
+                    <td>
+                        <button class="btn btn-primary" @onclick="() => Rabotatb_2()">Запуск</button>
+                        <button class="btn btn-danger" @onclick="Astonavis_ta_2">Отмена</button>
+                    </td>
+                </tr>
+
+
+
+
+            </tbody>
+    </table>
+
+
+
+
+
+@code {
+    string thismat;
+    string thismat2;
+    string thismat3;
+    private HomeCurent[]? forecasts;
+    List<Line> lines;
+    List<DayMat>? daymats;
+    int x;
+    List<Material> materials;
+
+    bool flag = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await using var context = ContextFactory.CreateDbContext();
+        lines = await context.Lines.Include(x => x.Material).ToListAsync();
+        daymats = context.DayMats.Include(x => x.countmaterial).ThenInclude(u => u.material).ToList();
+        materials = await context.Material.ToListAsync();
+        thismat = context.Lines.First().Material.Name;
+        thismat2 = context.Lines.First().Material.Name;
+        thismat3 = context.Lines.First().Material.Name;
+        //await complition();
+        //await Rabotatb();
+        //   Timer timer = new Timer(async
+        //     (state) =>
+        // {
+
+        //     await Rabotatb();
+        // }, null, TimeSpan.FromSeconds(2), Timeout.InfiniteTimeSpan);
+
+
+    }
+
+
+
+
+    private class HomeCurent
+    {
+        public DateOnly Date { get; set; }
+
+    }
+
+    public async Task complition()
+    {
+        await using var context = ContextFactory.CreateDbContext();
+        // daymats = await context.DayMats.Include(x => x.countmaterial).ThenInclude(u => u.material).ToListAsync();
+        List<Material> material = await context.Material.ToListAsync();
+
+        CountMaterialDay countMaterialDay = new CountMaterialDay
+            {
+                material = material.Find(c => c.Name == "сибирская"),
+                count = 0,
+
+            };
+
+        DayMat day = new DayMat
+            {
+                day = new DateOnly(2024,04,12),
+                countmaterial = new List<CountMaterialDay>
+                {
+                    countMaterialDay
+                }
+            };
+
+        context.DayMats.Add(day);
+        context.SaveChanges();
+    }
+
+
+    public async Task Rabotatb_0()
+    {
+        await using var context = ContextFactory.CreateDbContext();
+
+        Random random = new Random();
+
+
+
+        while (true)
+        {
+            if (flag)
+                break;
+            daymats.Find(x => x.DayMatId == 2).countmaterial[0].count += random.Next(1, 3);
+
+            await Task.Delay(1000);
+
+            await InvokeAsync(() => StateHasChanged());
+        }
+
+        context.CountMaterialDays.Update(daymats.Find(x => x.DayMatId == 2).countmaterial[0]);
+        context.SaveChanges();
+    }
+
+    public async Task Astonavis_ta_0()
+    {
+        flag = !flag;
+    }
+
+    public async Task Rabotatb_1()
+    {
+        await using var context = ContextFactory.CreateDbContext();
+
+        Random random = new Random();
+
+
+
+        while (true)
+        {
+            if (flag)
+                break;
+            daymats.Find(x => x.DayMatId == 2).countmaterial[1].count += random.Next(1, 7);
+
+            await Task.Delay(3000);
+
+            await InvokeAsync(() => StateHasChanged());
+        }
+
+        context.CountMaterialDays.Update(daymats.Find(x => x.DayMatId == 2).countmaterial[1]);
+        context.SaveChanges();
+    }
+
+    public async Task Astonavis_ta_1()
+    {
+        flag = !flag;
+    }
+
+    public async Task Rabotatb_2()
+    {
+        await using var context = ContextFactory.CreateDbContext();
+
+        Random random = new Random();
+
+
+
+        while (true)
+        {
+            if (flag)
+                break;
+            daymats.Find(x => x.DayMatId == 2).countmaterial[2].count += random.Next(1, 7);
+
+            await Task.Delay(3000);
+
+            await InvokeAsync(() => StateHasChanged());
+        }
+
+        context.CountMaterialDays.Update(daymats.Find(x => x.DayMatId == 2).countmaterial[2]);
+        context.SaveChanges();
+    }
+
+    public async Task Astonavis_ta_2()
+    {
+        flag = !flag;
+    }
+}
+

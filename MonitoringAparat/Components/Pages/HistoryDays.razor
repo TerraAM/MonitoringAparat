@@ -1,0 +1,659 @@
+﻿@page "/HistoryDays"
+@attribute [StreamRendering]
+@rendermode InteractiveServer
+@using Microsoft.EntityFrameworkCore
+@using MonitoringAparat
+@using MonitoringAparat.Entitties
+@using Syncfusion.Blazor.DocumentEditor
+<PageTitle>TimeList</PageTitle>
+@inject IDbContextFactory<MonitContext> ContextFactory
+<PageTitle>TimeList</PageTitle>
+@inject IJSRuntime JSRuntime
+
+
+
+<PageTitle>Counter</PageTitle>
+
+<h1>История сбоев и работы</h1>
+
+<p>Текущая дата и время: @CurrentDateTime</p>
+@code {
+    private DateTime CurrentDateTime = DateTime.Now;
+}
+
+<style>
+    body {
+        font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    }
+</style>
+
+<select @bind="thisDay">
+
+    @foreach (var day in days_days_baby)
+    {
+        <option value="@day.Date.ToString("dd.MM.yyyy")">@day.Date.ToString("dd.MM.yyyy")</option>
+    }
+
+</select>
+
+
+<div>Линия 1</div>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Время</th>
+            <th>Статус</th>
+            <th>Время</th>
+            <th>Статус</th>
+            <th>Время</th>
+            <th>Статус</th>
+        </tr>
+    </thead>
+    <tbody>
+        
+        @foreach (var day in days_days_baby.Where(d => d.Date == thisDay))
+        {
+
+            var groupedPeriods = day.Periods.GroupBy(p => p.LineId).ToDictionary(g => g.Key, g => g.ToList());
+            var maxPeriodsCount = groupedPeriods.Max(gp => gp.Value.Count);
+
+            for (int i = 0; i < maxPeriodsCount; i++)
+            {
+                <tr>
+                    
+                    <td>@(groupedPeriods[lines_lyans[0]].Count > i ? groupedPeriods[lines_lyans[0]][i].Time.ToString() : "")</td>
+                    <td>@(groupedPeriods[lines_lyans[0]].Count > i ? groupedPeriods[lines_lyans[0]][i].Status : "")</td>
+
+                    
+                    <td>@(groupedPeriods[lines_lyans[1]].Count > i ? groupedPeriods[lines_lyans[1]][i].Time.ToString() : "")</td>
+                    <td>@(groupedPeriods[lines_lyans[1]].Count > i ? groupedPeriods[lines_lyans[1]][i].Status : "")</td>
+
+                    
+                    <td>@(groupedPeriods[lines_lyans[2]].Count > i ? groupedPeriods[lines_lyans[2]][i].Time.ToString() : "")</td>
+                    <td>@(groupedPeriods[lines_lyans[2]].Count > i ? groupedPeriods[lines_lyans[2]][i].Status : "")</td>
+                </tr>
+            }
+        }
+        
+    </tbody>
+</table>
+
+
+
+
+@* @inject IJSRuntime Js
+<h3>PrintTest</h3>
+<button @onclick="Print"></button>
+@code {
+    private async Task Print()
+    {
+        await Js.InvokeVoidAsync("raspe");
+    }
+} *@
+
+
+
+
+
+@code {
+    List<Day> days_days_baby;
+
+    List<Period> periods_piron_vokzal;
+    List<Period> periods_piron_vokzal_1;
+    List<Period> periods_piron_vokzal_2;
+
+    List<Line> lines_lyans;
+
+}
+@code {
+    List<Day> days;
+
+    DateOnly thisDay = new DateOnly(2024, 06, 19);
+
+    private void Edit()
+    {
+        // using var context = ContextFactory.CreateDbContext();
+        // days = context.Days.Include(e => e.Periods).ToList();
+        // context.Periods.Add(new Period() { Id = 1, Time = new TimeOnly(07, 30, 00), Status = "Работает" });
+        // context.Periods.Add(new Period() { Id = 2, Time = new TimeOnly(07, 50, 00), Status = "Ошибка по сенсору_1" });
+        // context.Periods.Add(new Period() { Id = 3, Time = new TimeOnly(07, 55, 00), Status = "Работает" });
+        // context.Periods.Add(new Period() { Id = 4, Time = new TimeOnly(08, 30, 00), Status = "Отсувствует сырье" });
+        // context.Periods.Add(new Period() { Id = 5, Time = new TimeOnly(08, 35, 00), Status = "Работает" });
+        // context.Periods.Add(new Period() { Id = 6, Time = new TimeOnly(10, 30, 00), Status = "Ошибка по сенсору_3" });
+        // context.Periods.Add(new Period() { Id = 7, Time = new TimeOnly(12, 40, 00), Status = "Работает" });
+        // context.Periods.Add(new Period() { Id = 8, Time = new TimeOnly(16, 20, 00), Status = "Отсувствует сырье" });
+        // context.Periods.Add(new Period() { Id = 9, Time = new TimeOnly(16, 25, 00), Status = "Работает" });
+        // context.Periods.Add(new Period() { Id = 10, Time = new TimeOnly(18, 30, 00), Status = "Ошибка по сенсору_3" });
+        // context.Periods.Add(new Period() { Id = 11, Time = new TimeOnly(18, 50, 00), Status = "Получше чем у некоторых" });
+        // context.Periods.Add(new Period() { Id = 12, Time = new TimeOnly(23, 30, 00), Status = "Выключено" });
+
+        // context.SaveChanges();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = ContextFactory.CreateDbContext();
+        //days = context.Days.Include(e => e.Periods).ToList();
+
+        lines_lyans = new List<Line>
+        {
+            new Line
+            {
+                
+            },
+            new Line
+            {
+
+            },
+            new Line
+            {
+
+            },
+        };
+
+        periods_piron_vokzal = new List<Period>
+        {
+            new Period
+            {
+                 Time = new TimeOnly(8,0),
+                 Status = "",
+                 LineId = lines_lyans[0],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(10,0),
+                 Status = "",
+                 LineId = lines_lyans[0],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(12,0),
+                 Status = "",
+                 LineId = lines_lyans[0],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(14,0),
+                 Status = "",
+                 LineId = lines_lyans[0],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(16,0),
+                 Status = "",
+                 LineId = lines_lyans[0],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(18,0),
+                 Status = "",
+                 LineId = lines_lyans[0],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(20,0),
+                 Status = "",
+                 LineId = lines_lyans[0],
+            },
+           
+
+
+            new Period
+            {
+                 Time = new TimeOnly(8,0),
+                 Status = "",
+                 LineId = lines_lyans[1],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(10,0),
+                 Status = "",
+                 LineId = lines_lyans[1],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(12,0),
+                 Status = "",
+                 LineId = lines_lyans[1],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(14,0),
+                 Status = "",
+                 LineId = lines_lyans[1],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(16,0),
+                 Status = "",
+                 LineId = lines_lyans[1],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(18,0),
+                 Status = "",
+                 LineId = lines_lyans[1],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(20,0),
+                 Status = "",
+                 LineId = lines_lyans[1],
+            },
+
+
+            new Period
+            {
+                 Time = new TimeOnly(8,0),
+                 Status = "",
+                 LineId = lines_lyans[2],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(10,0),
+                 Status = "",
+                 LineId = lines_lyans[2],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(12,0),
+                 Status = "",
+                 LineId = lines_lyans[2],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(14,0),
+                 Status = "",
+                 LineId = lines_lyans[2],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(16,0),
+                 Status = "",
+                 LineId = lines_lyans[2],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(18,0),
+                 Status = "",
+                 LineId = lines_lyans[2],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(20,0),
+                 Status = "",
+                 LineId = lines_lyans[2],
+            },
+        };
+
+        periods_piron_vokzal_1 = new List<Period>
+        {
+            new Period
+            {
+                 Time = new TimeOnly(8,0),
+                 Status = "",
+                 LineId = lines_lyans[0],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(10,0),
+                 Status = "",
+                 LineId = lines_lyans[0],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(12,0),
+                 Status = "",
+                 LineId = lines_lyans[0],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(14,0),
+                 Status = "",
+                 LineId = lines_lyans[0],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(16,0),
+                 Status = "",
+                 LineId = lines_lyans[0],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(18,0),
+                 Status = "",
+                 LineId = lines_lyans[0],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(20,0),
+                 Status = "",
+                 LineId = lines_lyans[0],
+            },
+
+
+            new Period
+            {
+                 Time = new TimeOnly(8,0),
+                 Status = "",
+                 LineId = lines_lyans[1],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(10,0),
+                 Status = "",
+                 LineId = lines_lyans[1],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(12,0),
+                 Status = "",
+                 LineId = lines_lyans[1],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(14,0),
+                 Status = "",
+                 LineId = lines_lyans[1],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(16,0),
+                 Status = "",
+                 LineId = lines_lyans[1],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(18,0),
+                 Status = "",
+                 LineId = lines_lyans[1],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(20,0),
+                 Status = "",
+                 LineId = lines_lyans[1],
+            },
+
+
+            new Period
+            {
+                 Time = new TimeOnly(8,0),
+                 Status = "",
+                 LineId = lines_lyans[2],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(10,0),
+                 Status = "",
+                 LineId = lines_lyans[2],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(12,0),
+                 Status = "",
+                 LineId = lines_lyans[2],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(14,0),
+                 Status = "",
+                 LineId = lines_lyans[2],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(16,0),
+                 Status = "",
+                 LineId = lines_lyans[2],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(18,0),
+                 Status = "",
+                 LineId = lines_lyans[2],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(20,0),
+                 Status = "",
+                 LineId = lines_lyans[2],
+            },
+        };
+
+        periods_piron_vokzal_2 = new List<Period>
+        {
+            new Period
+            {
+                 Time = new TimeOnly(8,0),
+                 Status = "",
+                 LineId = lines_lyans[0],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(10,0),
+                 Status = "",
+                 LineId = lines_lyans[0],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(12,0),
+                 Status = "",
+                 LineId = lines_lyans[0],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(14,0),
+                 Status = "",
+                 LineId = lines_lyans[0],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(16,0),
+                 Status = "",
+                 LineId = lines_lyans[0],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(18,0),
+                 Status = "",
+                 LineId = lines_lyans[0],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(20,0),
+                 Status = "",
+                 LineId = lines_lyans[0],
+            },
+
+
+            new Period
+            {
+                 Time = new TimeOnly(8,0),
+                 Status = "",
+                 LineId = lines_lyans[1],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(10,0),
+                 Status = "",
+                 LineId = lines_lyans[1],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(12,0),
+                 Status = "",
+                 LineId = lines_lyans[1],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(14,0),
+                 Status = "",
+                 LineId = lines_lyans[1],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(16,0),
+                 Status = "",
+                 LineId = lines_lyans[1],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(18,0),
+                 Status = "",
+                 LineId = lines_lyans[1],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(20,0),
+                 Status = "",
+                 LineId = lines_lyans[1],
+            },
+
+
+            new Period
+            {
+                 Time = new TimeOnly(8,0),
+                 Status = "",
+                 LineId = lines_lyans[2],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(10,0),
+                 Status = "",
+                 LineId = lines_lyans[2],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(12,0),
+                 Status = "",
+                 LineId = lines_lyans[2],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(14,0),
+                 Status = "",
+                 LineId = lines_lyans[2],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(16,0),
+                 Status = "",
+                 LineId = lines_lyans[2],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(18,0),
+                 Status = "",
+                 LineId = lines_lyans[2],
+            },
+            new Period
+            {
+                 Time = new TimeOnly(20,0),
+                 Status = "",
+                 LineId = lines_lyans[2],
+            },
+        };
+
+        days_days_baby = new List<Day>
+        {
+            new Day
+            {
+                 Date = new DateOnly(2024, 06, 19),
+                 Periods = periods_piron_vokzal,
+            },
+            new Day
+            {
+                 Date = new DateOnly(2024, 06, 20),
+                 Periods = periods_piron_vokzal_1,
+            },
+            new Day
+            {
+                 Date = new DateOnly(2024, 06, 21),
+                 Periods = periods_piron_vokzal_2,
+            }
+        };
+
+        met();
+
+    }
+
+    public void met()
+    {
+        Random random = new Random();
+
+        for(int i = 0; i < 21; i++)
+        {
+            var temp = random.Next(0, 4);
+
+            if(temp == 0)
+            {
+                periods_piron_vokzal[i].Status = "Отсутствует тара";
+            }
+
+            if (temp == 1)
+            {
+                periods_piron_vokzal[i].Status = "Отсутствует сырье";
+            }
+            if (temp == 2)
+            {
+                periods_piron_vokzal[i].Status = "Поломка мойки";
+            }
+            if (temp == 3)
+            {
+                periods_piron_vokzal[i].Status = "Поломка на розливе";
+            }
+
+            
+        }
+
+        for (int i = 0; i < 21; i++)
+        {
+            var temp = random.Next(0, 4);
+
+            if (temp == 0)
+            {
+                periods_piron_vokzal_1[i].Status = "Отсутствует тара";
+            }
+
+            if (temp == 1)
+            {
+                periods_piron_vokzal_1[i].Status = "Отсутствует сырье";
+            }
+            if (temp == 2)
+            {
+                periods_piron_vokzal_1[i].Status = "Поломка мойки";
+            }
+            if (temp == 3)
+            {
+                periods_piron_vokzal_1[i].Status = "Поломка на розливе";
+            }
+
+
+        }
+
+        for (int i = 0; i < 21; i++)
+        {
+            var temp = random.Next(0, 4);
+
+            if (temp == 0)
+            {
+                periods_piron_vokzal_2[i].Status = "Отсутствует тара";
+            }
+
+            if (temp == 1)
+            {
+                periods_piron_vokzal_2[i].Status = "Отсутствует сырье";
+            }
+            if (temp == 2)
+            {
+                periods_piron_vokzal_2[i].Status = "Поломка мойки";
+            }
+            if (temp == 3)
+            {
+                periods_piron_vokzal_2[i].Status = "Поломка на розливе";
+            }
+
+
+        }
+    }
+}

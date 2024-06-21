@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <!--<ItemGroup>
+    <Compile Include="C:\Users\denga\Desktop\MonitContext.cs" Link="MonitContext.cs" />
+  </ItemGroup>-->
+
+  <ItemGroup>
+    <PackageReference Include="Majorsoft.Blazor.Components.Common.JsInterop" Version="1.5.0" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.1.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.JSInterop" Version="8.0.4" />
+    <PackageReference Include="Microsoft.JSInterop.WebAssembly" Version="8.0.4" />
+    <PackageReference Include="Navigation" Version="1.11.0" />
+    <PackageReference Include="Syncfusion.Blazor.Themes" Version="25.1.42" />
+    <PackageReference Include="Syncfusion.Blazor.WordProcessor" Version="25.1.42" />
+  </ItemGroup>
+
+</Project>
