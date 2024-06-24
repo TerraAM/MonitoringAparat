@@ -1,0 +1,70 @@
+﻿@page "/History"
+@attribute [StreamRendering]
+@rendermode InteractiveServer
+@using Microsoft.EntityFrameworkCore
+@using MonitoringAparat
+@using MonitoringAparat.Entitties
+<PageTitle>TimeList</PageTitle>
+@inject IDbContextFactory<MonitContext> ContextFactory
+<PageTitle>TimeList</PageTitle>
+
+
+
+<PageTitle>Counter</PageTitle>
+
+<h1>История работы и сбоев</h1>
+<p>Monitoring History Factory</p>
+
+@* <table class="table">
+    <thead>
+        <tr>
+            <th>xyu</th>
+            <th>Limit</th>
+            <th>Change</th>
+            <th>Woerked (Hours)</th>
+            <th>Part Status</th>
+
+
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var forecast in parts)
+        {
+            <tr>
+                <td>@forecast.NamePart</td>
+                <td>@forecast.Limit</td>
+                <td>@forecast.Change</td>
+                <td>@forecast.Worked</td>
+                <td>@forecast.PartStatus</td>
+            </tr>
+        }
+    </tbody>
+</table> *@
+
+<button class="btn btn-primary" @* @onclick="Edit" *@>edit</button>
+
+
+@code {
+    
+
+
+    private void Edit()
+    {
+        using var context = ContextFactory.CreateDbContext();
+
+        // context.Periods.Add(new Period() { Id = 1, Time = new TimeOnly(07, 30, 00), Status = "Работает" });
+        // context.Periods.Add(new Period() { Id = 2, Time = new TimeOnly(07, 50, 00), Status = "Ошибка по сенсору_1" });
+        // context.Periods.Add(new Period() { Id = 3, Time = new TimeOnly(07, 55, 00), Status = "Работает" });
+        // context.Periods.Add(new Period() { Id = 4, Time = new TimeOnly(08, 30, 00), Status = "Отсувствует сырье" });
+        // context.Periods.Add(new Period() { Id = 5, Time = new TimeOnly(08, 35, 00), Status = "Работает" });
+        // context.Periods.Add(new Period() { Id = 6, Time = new TimeOnly(10, 30, 00), Status = "Ошибка по сенсору_3" });
+        // context.Periods.Add(new Period() { Id = 7, Time = new TimeOnly(12, 40, 00), Status = "Работает" });
+        // context.Periods.Add(new Period() { Id = 8, Time = new TimeOnly(16, 20, 00), Status = "Отсувствует сырье" });
+        // context.Periods.Add(new Period() { Id = 9, Time = new TimeOnly(16, 25, 00), Status = "Работает" });
+        // context.Periods.Add(new Period() { Id = 10, Time = new TimeOnly(18, 30, 00), Status = "Ошибка по сенсору_3" });
+        // context.Periods.Add(new Period() { Id = 11, Time = new TimeOnly(18, 50, 00), Status = "Получше чем у некоторых" });
+        // context.Periods.Add(new Period() { Id = 12, Time = new TimeOnly(23, 30, 00), Status = "Выключено" });
+
+        context.SaveChanges();
+    }
+}

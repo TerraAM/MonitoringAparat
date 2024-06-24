@@ -1,0 +1,56 @@
+﻿@page "/Adddd"
+@attribute [StreamRendering]
+@rendermode InteractiveServer
+@using Microsoft.EntityFrameworkCore
+@using MonitoringAparat
+@using MonitoringAparat.Entitties
+<PageTitle>TimeList</PageTitle>
+@inject IDbContextFactory<MonitContext> ContextFactory
+<PageTitle>TimeList</PageTitle>
+
+
+
+<PageTitle>Counter</PageTitle>
+
+<h1>History Time Live</h1>
+<p></p>
+
+@* <table class="table">
+    <thead>
+        <tr>
+            <th>xyu</th>
+            <th>Limit</th>
+            <th>Change</th>
+            <th>Woerked (Hours)</th>
+            <th>Part Status</th>
+
+
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var forecast in parts)
+        {
+            <tr>
+                <td>@forecast.NamePart</td>
+                <td>@forecast.Limit</td>
+                <td>@forecast.Change</td>
+                <td>@forecast.Worked</td>
+                <td>@forecast.PartStatus</td>
+            </tr>
+        }
+    </tbody>
+</table> *@
+
+<button class="btn btn-primary" @onclick="Edit">edit</button>
+
+
+@code {
+    
+
+    private void Edit()
+    {
+        using var context = ContextFactory.CreateDbContext();
+        context.Parts.Add(new Part() { PartId = 13, NamePart = "очень сложная штука", Change = new DateOnly(2023, 04, 23), PartStatus = "Получше чем у некоторых", Limit = 15000, Worked = 2541 });
+        context.SaveChanges();
+    }
+}

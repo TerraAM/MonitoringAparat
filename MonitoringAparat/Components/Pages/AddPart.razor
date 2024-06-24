@@ -1,0 +1,61 @@
+﻿@page "/AddPart"
+<h3>AddPart</h3>
+@* @attribute [StreamRendering] *@
+@using Microsoft.EntityFrameworkCore
+@using MonitoringAparat
+@using MonitoringAparat.Entitties
+@inject IDbContextFactory<MonitContext> ContextFactory
+
+<PageTitle>Add new Part for apparat</PageTitle>
+
+<button class="btn btn-primary" @onclick="Ed">edit</button>
+
+
+
+@code {
+
+    private void Ed()
+    {
+        using var context = ContextFactory.CreateDbContext();
+        context.Parts.Add(new Part() { PartId = 2, NamePart = "очень сложная штука", Change = new DateOnly(2023, 04, 23), PartStatus = "Получше чем у некоторых", Limit = 15000, Worked = 2541 });
+        context.SaveChanges();
+    }
+
+    // List<Line> lines;
+    // IEnumerable<Part> parts;
+    // public string NamePart { get; set; }
+    // public string Limit { get; set; }
+    // public string Change { get; set; }
+    // public string Worked { get; set; }
+    // public string PartStatus { get; set; }
+
+    // public AddPart(string partStatus)
+    // {
+    //     PartStatus = partStatus;
+    // }
+
+    // public override bool Equals(object obj)
+    // {
+    //     return obj is AddPart part &&
+    //            PartStatus == part.PartStatus;
+    // }
+
+    // public override int GetHashCode()
+    // {
+    //     return HashCode.Combine(PartStatus);
+    // }
+
+    // // public async Task Create()
+    // //{
+    // //    var res = await Part.GetFromJsonAsync<Response>($"https://localhost:5001/api/Order/Create?weigthGram={}&NamePart={NamePart}&Limit={Convert.ToInt32(Limit)}&Change={Convert.To(Change)}&Worked={Convert.ToInt32(Worked)}&Status={PartStatus}");
+    // //}
+    // //List<Line> lines;
+    // //IEnumerable<Part> parts;
+
+    // public void Create()
+    // {
+    //     using var context = ContextFactory.CreateDbContext();
+    //     context.Periods.Add(new Period() { Id = 2, Time = TimeOnly.FromDateTime(DateTime.Now), Status = "Получше чем у некоторых" });
+    //     context.SaveChanges();
+    // }
+}

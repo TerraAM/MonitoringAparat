@@ -1,0 +1,22 @@
+﻿@page "/AddEntities"
+@attribute [StreamRendering]
+@using Microsoft.EntityFrameworkCore
+@using MonitoringAparat
+@using MonitoringAparat.Entitties
+@inject IDbContextFactory<MonitContext> ContextFactory
+
+
+<PageTitle>Counter</PageTitle>
+<h3>AddEntities</h3>
+
+@* <button class="btn btn-primary" @onclick="Ed">edit</button> *@
+<button class="btn btn-primary" @onclick="Ed">qew</button>
+
+@code {
+    private void Ed()
+    {
+        using var context = ContextFactory.CreateDbContext();
+        context.Parts.Add(new Part() { PartId = 13, NamePart = "очень сложная штука", Change = new DateOnly(2023, 04, 23), PartStatus = "Получше чем у некоторых", Limit = 15000, Worked = 2541 });
+        context.SaveChanges();
+    }
+}
